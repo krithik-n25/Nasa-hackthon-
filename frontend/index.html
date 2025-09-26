@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌍 Farm Navigator Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/framer-motion@10/dist/framer-motion.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'deep-green': '#0f2027',
+                        'forest': '#1a3a2e',
+                        'emerald': '#10b981',
+                        'mint': '#6ee7b7',
+                        'sage': '#34d399'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            scroll-behavior: smooth;
+        }
+        
+        .display-font {
+            font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+        }
+        
+        .orbitron {
+            font-family: 'Orbitron', 'Inter', system-ui, sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #000000 0%, #010101 50%, #000000 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.25);
+        }
+        
+        .animate-count {
+            animation: countUp 2s ease-out;
+        }
+        
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.6); }
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+        
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .tooltip.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Ensure dropdown options are readable on light native menus */
+        #locationSelect { color: #ffffff; }
+        #locationSelect option { color: #111827; background-color: #ffffff; }
+        #locationSelect optgroup { color: #9CA3AF; background-color: #ffffff; }
+        /* Some browsers respect the select background; keep it transparent in header */
+        #locationSelect:focus { outline: none; }
+        
+        /* Horizontal scroll video gallery */
+        .hscroll-outer { height: 140vh; }
+        .hscroll-sticky { position: sticky; top: 80px; height: 80vh; overflow: hidden; }
+        .hscroll-track { display: flex; gap: 24px; height: 100%; will-change: transform; padding: 0 24px; }
+        .hvideo { min-width: 60vw; height: 100%; background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(110,231,183,0.05)); border: 1px solid rgba(16,185,129,0.25); border-radius: 20px; overflow: hidden; position: relative; box-shadow: 0 25px 50px -12px rgba(16,185,129,0.25); }
+        .hvideo-el { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.05) contrast(1.05); transition: transform 0.5s ease, filter 0.5s ease; }
+        .hvideo:hover .hvideo-el, .hvideo:focus-within .hvideo-el { transform: scale(1.04); filter: saturate(1.15) contrast(1.1); }
+        .hvideo figcaption { position: absolute; left: 16px; bottom: 14px; font-family: 'Orbitron', 'Inter', sans-serif; font-weight: 800; letter-spacing: .5px; color: #fff; text-shadow: 0 6px 18px rgba(0,0,0,.45); background: rgba(0,0,0,.35); padding: 6px 10px; border-radius: 9999px; border: 1px solid rgba(255,255,255,.15); }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white font-sans">
+    <!-- Header Bar -->
+    <header id="mainHeader" class="bg-black/20 backdrop-blur-lg border-b border-emerald/20 sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+				<div class="flex items-center space-x-4">
+					<h1 class="orbitron whitespace-nowrap text-3xl md:text-4xl font-extrabold floating text-white tracking-wide drop-shadow">
+						Farm Navigator Dashboard
+					</h1>
+					<div class="flex items-center space-x-2 bg-forest/50 rounded-lg px-3 py-1">
+						<span class="text-sm text-mint">📍</span>
+						<select id="locationSelect" class="bg-transparent text-sm text-white border-none outline-none focus:outline-none">
+							<option value="current">Use Current Location</option>
+							<optgroup label="Top Cities"></optgroup>
+						</select>
+					</div>
+					<div class="flex items-center space-x-2 bg-forest/50 rounded-lg px-3 py-1">
+						<span class="text-sm">🌱 Spring Season</span>
+					</div>
+				</div>
+				<div class="grid grid-cols-3 gap-3 items-center">
+					<button class="bg-emerald/20 hover:bg-emerald/30 w-16 h-16 rounded-lg transition-all duration-300 hover:scale-105 ring-1 ring-emerald/30 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald/40 flex flex-col items-center justify-center text-center">
+						<span class="text-lg">📊</span>
+						<span class="text-[10px] font-medium leading-tight">Insights</span>
+					</button>
+					<button class="bg-sage/20 hover:bg-sage/30 w-16 h-16 rounded-lg transition-all duration-300 hover:scale-105 ring-1 ring-sage/30 shadow-sm focus:outline-none focus:ring-2 focus:ring-sage/40 flex flex-col items-center justify-center text-center">
+						<span class="text-lg">🗺</span>
+						<span class="text-[10px] font-medium leading-tight">explore</span>
+					</button>
+					<button class="bg-mint/20 hover:bg-mint/30 w-16 h-16 rounded-lg transition-all duration-300 hover:scale-105 ring-1 ring-mint/30 shadow-sm focus:outline-none focus:ring-2 focus:ring-mint/40 flex flex-col items-center justify-center text-center">
+						<span class="text-lg">🎮</span>
+						<span class="text-[10px] font-medium leading-tight">Simulator game</span>
+					</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Card Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            <!-- Weather Card -->
+            <div class="card-hover bg-gradient-to-br from-forest/80 to-deep-green/80 backdrop-blur-lg rounded-2xl p-6 border border-emerald/20 cursor-pointer" onclick="expandCard('weather')">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-semibold text-emerald">☀ Weather</h3>
+                    <div class="pulse-glow bg-emerald/20 rounded-full p-2">
+                        <span class="text-2xl">🌤</span>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-300">Temperature</span>
+                        <span class="text-2xl font-bold text-white animate-count">28°C</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-300">Rainfall</span>
+                        <span class="text-xl font-semibold text-mint animate-count">15mm</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-300">Drought Index</span>
+                        <span class="text-lg font-medium text-yellow-400 animate-count">Low</span>
+                    </div>
+                </div>
+                <div class="mt-4 bg-emerald/10 rounded-lg p-3">
+                    <div class="chart-container">
+                        <canvas id="weatherChart"></canvas>
+                    </div>
+                </div>
+                <div class="tooltip absolute bg-black/80 text-white p-2 rounded-lg text-sm">
+                    Rainfall from NASA POWER dataset (lat, lon)
+                </div>
+            </div>
+
+            <!-- Soil Card -->
+            <div class="card-hover bg-gradient-to-br from-forest/80 to-deep-green/80 backdrop-blur-lg rounded-2xl p-6 border border-emerald/20 cursor-pointer" onclick="expandCard('soil')">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-semibold text-emerald">🌱 Soil Health</h3>
+                    <div class="pulse-glow bg-emerald/20 rounded-full p-2">
+                        <span class="text-2xl">🌿</span>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-300">Soil Moisture</span>
+                            <span class="text-lg font-semibold text-mint animate-count">78%</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-3">
+                            <div class="bg-gradient-to-r from-emerald to-mint h-3 rounded-full transition-all duration-2000" style="width: 78%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-emerald/20 rounded-lg p-2">
+                            <div class="text-sm text-gray-300">N</div>
+                            <div class="text-lg font-bold text-emerald animate-count">85%</div>
+                        </div>
+                        <div class="bg-sage/20 rounded-lg p-2">
+                            <div class="text-sm text-gray-300">P</div>
+                            <div class="text-lg font-bold text-sage animate-count">72%</div>
+                        </div>
+                        <div class="bg-mint/20 rounded-lg p-2">
+                            <div class="text-sm text-gray-300">K</div>
+                            <div class="text-lg font-bold text-mint animate-count">91%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 bg-emerald/10 rounded-lg p-3">
+                    <div class="chart-container">
+                        <canvas id="soilChart"></canvas>
+                    </div>
+                </div>
+                <div class="tooltip absolute bg-black/80 text-white p-2 rounded-lg text-sm">
+                    Soil moisture from NASA SMAP satellite
+                </div>
+            </div>
+
+            <!-- Crop/Yield Card -->
+            <div class="card-hover bg-gradient-to-br from-forest/80 to-deep-green/80 backdrop-blur-lg rounded-2xl p-6 border border-emerald/20 cursor-pointer" onclick="expandCard('crop')">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-semibold text-emerald">🌾 Crop Yield</h3>
+                    <div class="pulse-glow bg-emerald/20 rounded-full p-2">
+                        <span class="text-2xl">🌾</span>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-emerald animate-count mb-2">4.2t/ha</div>
+                        <div class="text-sm text-gray-300">Predicted Yield</div>
+                    </div>
+                    <div class="flex items-center justify-center space-x-2">
+                        <div class="w-4 h-4 bg-emerald rounded-full pulse-glow"></div>
+                        <span class="text-mint font-medium">Excellent Health</span>
+                    </div>
+                    <div class="bg-emerald/10 rounded-lg p-3">
+                        <div class="text-sm text-gray-300 mb-2">Growth Progress</div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-emerald to-mint h-2 rounded-full transition-all duration-2000" style="width: 85%"></div>
+                        </div>
+                        <div class="text-right text-xs text-mint mt-1">85% Complete</div>
+                    </div>
+                </div>
+                <div class="mt-4 bg-emerald/10 rounded-lg p-3">
+                    <div class="chart-container">
+                        <canvas id="cropChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Widget -->
+        <div class="bg-gradient-to-br from-forest/80 to-deep-green/80 backdrop-blur-lg rounded-2xl p-6 border border-emerald/20 mb-8">
+            <h3 class="text-xl font-semibold text-emerald mb-4">🗺 Farm Location</h3>
+            <div id="map" class="h-64 rounded-lg"></div>
+        </div>
+
+        <!-- Sustainability Score & Quick Actions -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+			<div class="bg-gradient-to-br from-forest/80 to-deep-green/80 backdrop-blur-lg rounded-2xl p-6 border border-emerald/20">
+				<h3 class="text-xl font-semibold text-emerald mb-4">🌍 Sustainability Score</h3>
+				<div class="flex items-center justify-center">
+					<div class="relative w-40 h-40">
+						<canvas id="sustainabilityGauge" width="160" height="160"></canvas>
+						<div class="absolute inset-0 flex items-center justify-center">
+							<div id="sustainabilityScoreText" class="text-4xl font-extrabold text-emerald">92</div>
+						</div>
+					</div>
+				</div>
+				<div class="mt-4 grid grid-cols-3 gap-2">
+					<div class="bg-emerald/15 rounded-lg px-3 py-2 text-center">
+						<div class="text-xs text-gray-300">Water Use</div>
+						<div class="text-sm font-semibold text-mint">Efficient</div>
+					</div>
+					<div class="bg-sage/15 rounded-lg px-3 py-2 text-center">
+						<div class="text-xs text-gray-300">Carbon</div>
+						<div class="text-sm font-semibold text-sage">Low</div>
+					</div>
+					<div class="bg-mint/15 rounded-lg px-3 py-2 text-center">
+						<div class="text-xs text-gray-300">Soil Health</div>
+						<div class="text-sm font-semibold text-mint">Strong</div>
+					</div>
+				</div>
+				<div class="mt-4 grid grid-cols-3 gap-3">
+					<button class="bg-emerald/20 hover:bg-emerald/30 rounded-lg px-2 py-2 text-center transition-all duration-300 hover:scale-105 ring-1 ring-emerald/30 focus:outline-none focus:ring-2 focus:ring-emerald/40" data-action="offset" data-delta="5">
+						<div class="text-xl mb-1">🌳</div>
+						<div class="text-xs">Offset Carbon</div>
+					</button>
+					<button class="bg-sage/20 hover:bg-sage/30 rounded-lg px-2 py-2 text-center transition-all duration-300 hover:scale-105 ring-1 ring-sage/30 focus:outline-none focus:ring-2 focus:ring-sage/40" data-action="irrigation" data-delta="3">
+						<div class="text-xl mb-1">💧</div>
+						<div class="text-xs">Optimize Irrigation</div>
+					</button>
+					<button class="bg-mint/20 hover:bg-mint/30 rounded-lg px-2 py-2 text-center transition-all duration-300 hover:scale-105 ring-1 ring-mint/30 focus:outline-none focus:ring-2 focus:ring-mint/40" data-action="waste" data-delta="2">
+						<div class="text-xl mb-1">♻️</div>
+						<div class="text-xs">Reduce Waste</div>
+					</button>
+				</div>
+			</div>
+
+            <div class="bg-gradient-to-br from-forest/80 to-deep-green/80 backdrop-blur-lg rounded-2xl p-6 border border-emerald/20">
+                <h3 class="text-xl font-semibold text-emerald mb-4">⚡ Quick Actions</h3>
+                <div class="grid grid-cols-3 gap-4">
+                    <button class="bg-emerald/20 hover:bg-emerald/30 p-4 rounded-lg transition-all duration-300 hover:scale-105 text-center">
+                        <div class="text-2xl mb-2">🚰</div>
+                        <div class="text-sm">Irrigate</div>
+                    </button>
+                    <button class="bg-sage/20 hover:bg-sage/30 p-4 rounded-lg transition-all duration-300 hover:scale-105 text-center">
+                        <div class="text-2xl mb-2">🌱</div>
+                        <div class="text-sm">Fertilize</div>
+                    </button>
+                    <button class="bg-mint/20 hover:bg-mint/30 p-4 rounded-lg transition-all duration-300 hover:scale-105 text-center">
+                        <div class="text-2xl mb-2">🌾</div>
+                        <div class="text-sm">Harvest</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+		<!-- Immersive Horizontal Scroll Video Gallery -->
+		<section id="scrollGallery" class="container mx-auto px-6 mt-14 mb-16">
+			<div class="hscroll-outer">
+				<div class="hscroll-sticky">
+					<div class="hscroll-track">
+						<!-- Video Cards: replace src with your own files in assets/videos -->
+						<figure class="hvideo">
+							<video class="hvideo-el" src="assets/videos/background.mp4" muted loop playsinline preload="metadata"></video>
+							<figcaption>Earth Systems</figcaption>
+						</figure>
+						<figure class="hvideo">
+							<video class="hvideo-el" src="assets/videos/video1.mp4" muted loop playsinline preload="metadata"></video>
+							<figcaption>Crop Canopy</figcaption>
+						</figure>
+						<figure class="hvideo">
+							<video class="hvideo-el" src="assets/videos/video2.mp4" muted loop playsinline preload="metadata"></video>
+							<figcaption>Water Cycle</figcaption>
+						</figure>
+						<figure class="hvideo">
+							<video class="hvideo-el" src="assets/videos/video3.mp4" muted loop playsinline preload="metadata"></video>
+							<figcaption>Soil Moisture</figcaption>
+						</figure>
+						<figure class="hvideo">
+							<video class="hvideo-el" src="assets/videos/video4.mp4" muted loop playsinline preload="metadata"></video>
+							<figcaption>Thermal Bands</figcaption>
+						</figure>
+					</div>
+				</div>
+			</div>
+		</section>
+    </main>
+
+    <!-- Footer: End-of-page section -->
+    <footer class="mt-12 bg-[#0b1a16] border-t border-emerald/20">
+        <div class="container mx-auto px-6 py-10">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="orbitron text-white font-extrabold tracking-wide mb-3">Farm Navigator</h4>
+                    <p class="text-sm text-gray-300/80 leading-relaxed">Data-driven insights for sustainable agriculture using a modern, immersive dashboard.</p>
+                </div>
+                <div>
+                    <h5 class="text-emerald font-semibold mb-2">Resources</h5>
+                    <ul class="space-y-1 text-sm text-gray-300/80">
+                        <li><a href="#" class="hover:text-white transition">Docs</a></li>
+                        <li><a href="#" class="hover:text-white transition">API</a></li>
+                        <li><a href="#" class="hover:text-white transition">Changelog</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-emerald font-semibold mb-2">Explore</h5>
+                    <ul class="space-y-1 text-sm text-gray-300/80">
+                        <li><a href="#" class="hover:text-white transition">Weather</a></li>
+                        <li><a href="#" class="hover:text-white transition">Soil</a></li>
+                        <li><a href="#" class="hover:text-white transition">Yield</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-emerald font-semibold mb-3">Stay Connected</h5>
+                    <div class="flex items-center gap-3">
+                        <a class="ring-1 ring-white/15 bg-white/5 hover:bg-white/10 transition rounded-full px-3 py-1 text-sm" href="#">Twitter</a>
+                        <a class="ring-1 ring-white/15 bg-white/5 hover:bg-white/10 transition rounded-full px-3 py-1 text-sm" href="#">GitHub</a>
+                        <a class="ring-1 ring-white/15 bg-white/5 hover:bg-white/10 transition rounded-full px-3 py-1 text-sm" href="#">YouTube</a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 pt-6 border-t border-white/10 flex items-center justify-between text-xs text-gray-400">
+                <span>© <span id="yearSpan"></span> Farm Navigator. All rights reserved.</span>
+                <div class="flex gap-4">
+                    <a href="#" class="hover:text-white transition">Privacy</a>
+                    <a href="#" class="hover:text-white transition">Terms</a>
+                    <a href="#" class="hover:text-white transition">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize charts and animations
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCharts();
+    initializeMap();
+    initializeAnimations();
+    setupTooltips();
+    populateLocationSelect();
+    setupLocationSelector();
+    initializeSustainabilityGauge();
+    initializeHorizontalGallery();
+    const y = document.getElementById('yearSpan'); if (y) y.textContent = new Date().getFullYear();
+});
+
+// Chart initialization
+function initializeCharts() {
+    // Weather Chart
+    const weatherCtx = document.getElementById('weatherChart').getContext('2d');
+    new Chart(weatherCtx, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: [25, 28, 26, 30, 28, 27, 29],
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'Rainfall (mm)',
+                data: [5, 15, 8, 0, 12, 20, 3],
+                borderColor: '#6ee7b7',
+                backgroundColor: 'rgba(110, 231, 183, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ffffff'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                y: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                }
+            }
+        }
+    });
+
+    // Soil Chart
+    const soilCtx = document.getElementById('soilChart').getContext('2d');
+    new Chart(soilCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Nitrogen', 'Phosphorus', 'Potassium'],
+            datasets: [{
+                data: [85, 72, 91],
+                backgroundColor: ['#10b981', '#34d399', '#6ee7b7'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#ffffff',
+                        padding: 10
+                    }
+                }
+            }
+        }
+    });
+
+    // Crop Chart
+    const cropCtx = document.getElementById('cropChart').getContext('2d');
+    new Chart(cropCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [{
+                label: 'Yield Forecast (t/ha)',
+                data: [3.2, 3.8, 4.1, 4.2],
+                backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                borderColor: '#10b981',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ffffff'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                y: {
+                    ticks: { color: '#ffffff' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                }
+            }
+        }
+    });
+}
+
+// Map initialization
+let appMap;
+let currentMarker;
+let farmIcon;
+
+function initializeMap() {
+    appMap = L.map('map').setView([40.7128, -74.0060], 10);
+    
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(appMap);
+    
+    // Add farm marker
+    farmIcon = L.divIcon({
+        html: '🌾',
+        iconSize: [30, 30],
+        className: 'farm-marker'
+    });
+    
+    currentMarker = L.marker([40.7128, -74.0060], { icon: farmIcon })
+        .addTo(appMap)
+        .bindPopup('🌾 Your Farm Location<br>Coordinates: 40.7128, -74.0060');
+    
+    // Add NASA overlay simulation
+    const overlayBounds = [[40.6, -74.2], [40.8, -73.8]];
+    L.rectangle(overlayBounds, {
+        color: '#10b981',
+        weight: 2,
+        opacity: 0.6,
+        fillOpacity: 0.2
+    }).addTo(appMap).bindPopup('NASA Satellite Coverage Area');
+}
+
+function updateMapLocation(lat, lon, label) {
+    if (!appMap) return;
+    appMap.setView([lat, lon], 11);
+    if (currentMarker) {
+        currentMarker.setLatLng([lat, lon]).setPopupContent(`🌾 ${label}<br>Coordinates: ${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+    } else {
+        currentMarker = L.marker([lat, lon], { icon: farmIcon }).addTo(appMap).bindPopup(`🌾 ${label}<br>Coordinates: ${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+    }
+}
+
+const TOP_CITIES = [
+    { name: 'New York, USA', lat: 40.7128, lon: -74.0060 },
+    { name: 'London, UK', lat: 51.5074, lon: -0.1278 },
+    { name: 'Tokyo, Japan', lat: 35.6762, lon: 139.6503 },
+    { name: 'Sydney, Australia', lat: -33.8688, lon: 151.2093 },
+    { name: 'Paris, France', lat: 48.8566, lon: 2.3522 },
+    { name: 'Dubai, UAE', lat: 25.2048, lon: 55.2708 },
+    { name: 'São Paulo, Brazil', lat: -23.5505, lon: -46.6333 },
+    { name: 'Nairobi, Kenya', lat: -1.2921, lon: 36.8219 },
+    { name: 'Mumbai, India', lat: 19.0760, lon: 72.8777 },
+    { name: 'Toronto, Canada', lat: 43.6532, lon: -79.3832 }
+];
+
+function populateLocationSelect() {
+    const select = document.getElementById('locationSelect');
+    if (!select) return;
+    const group = select.querySelector('optgroup');
+    if (!group) return;
+    group.innerHTML = '';
+    TOP_CITIES.forEach((city, idx) => {
+        const option = document.createElement('option');
+        option.value = `city-${idx}`;
+        option.textContent = city.name;
+        option.dataset.lat = city.lat;
+        option.dataset.lon = city.lon;
+        group.appendChild(option);
+    });
+}
+
+function setupLocationSelector() {
+    const select = document.getElementById('locationSelect');
+    if (!select) return;
+    select.addEventListener('change', () => {
+        const val = select.value;
+        if (val === 'current') {
+            geolocateAndUpdate();
+        } else {
+            const option = select.selectedOptions[0];
+            const lat = parseFloat(option.dataset.lat);
+            const lon = parseFloat(option.dataset.lon);
+            updateMapLocation(lat, lon, option.textContent || 'Selected Location');
+        }
+    });
+    // Try geolocating on load for better UX
+    geolocateAndUpdate();
+}
+
+function geolocateAndUpdate() {
+    if (!navigator.geolocation) {
+        return; // Geolocation not supported
+    }
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            const { latitude, longitude } = pos.coords;
+            updateMapLocation(latitude, longitude, 'Your Current Location');
+        },
+        () => {
+            // Ignore errors and keep default view
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+    );
+}
+
+// Animation initialization
+function initializeAnimations() {
+    // Animate numbers on scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateValue(entry.target);
+            }
+        });
+    });
+
+    document.querySelectorAll('.animate-count').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Stagger card animations
+    const cards = document.querySelectorAll('.card-hover');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = '${index * 0.2}s';
+        card.classList.add('animate-fade-in');
+    });
+}
+
+// Animate number counting
+function animateValue(element) {
+    const text = element.textContent;
+    const number = parseFloat(text.match(/[\d.]+/)?.[0] || 0);
+    const unit = text.replace(/[\d.]+/, '');
+    
+    if (number > 0) {
+        let current = 0;
+        const increment = number / 50;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= number) {
+                current = number;
+                clearInterval(timer);
+            }
+            element.textContent = current.toFixed(number % 1 === 0 ? 0 : 1) + unit;
+        }, 40);
+    }
+}
+
+// Card expansion functionality
+function expandCard(cardType) {
+    const card = event.currentTarget;
+    
+    // Add expansion animation
+    card.style.transform = 'scale(1.05)';
+    card.style.zIndex = '10';
+    
+    // Reset after animation
+    setTimeout(() => {
+        card.style.transform = '';
+        card.style.zIndex = '';
+    }, 300);
+    
+    // Show detailed view based on card type
+    switch(cardType) {
+        case 'weather':
+            showWeatherDetails();
+            break;
+        case 'soil':
+            showSoilDetails();
+            break;
+        case 'crop':
+            showCropDetails();
+            break;
+    }
+}
+
+// Detailed view functions
+function showWeatherDetails() {
+    alert('🌤 7-Day Weather Forecast\n\nDetailed weather trends and predictions would be displayed here with interactive charts showing temperature, rainfall, humidity, and wind patterns.');
+}
+
+function showSoilDetails() {
+    alert('🌱 Soil Analysis Details\n\nDetailed soil composition analysis would be displayed here, including moisture levels at different depths (10cm vs 1m) and nutrient distribution maps.');
+}
+
+function showCropDetails() {
+    alert('🌾 Crop Management Simulator\n\nInteractive "What if?" simulator would be displayed here, allowing you to toggle irrigation, fertilization, and other factors to see instant yield predictions.');
+}
+
+// Tooltip setup
+function setupTooltips() {
+    const cards = document.querySelectorAll('.card-hover');
+    
+    cards.forEach(card => {
+        const tooltip = card.querySelector('.tooltip');
+        if (tooltip) {
+            card.addEventListener('mouseenter', () => {
+                tooltip.classList.add('show');
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                tooltip.classList.remove('show');
+            });
+        }
+    });
+}
+
+// Smooth scroll for navigation
+function smoothScroll(target) {
+    document.querySelector(target).scrollIntoView({
+        behavior: 'smooth'
+    });
+}
+
+// Add fade-in animation CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+    
+    .farm-marker {
+        background: none;
+        border: none;
+        font-size: 24px;
+    }
+`;
+document.head.appendChild(style);
+
+// Add interactive features
+document.addEventListener('click', function(e) {
+    // Quick action buttons
+    if (e.target.closest('button')) {
+        const button = e.target.closest('button');
+        const text = button.textContent.trim();
+        
+        if (text.includes('Irrigate')) {
+            showIrrigationDialog();
+        } else if (text.includes('Fertilize')) {
+            showFertilizationDialog();
+        } else if (text.includes('Harvest')) {
+            showHarvestDialog();
+        }
+    }
+});
+
+function showIrrigationDialog() {
+    alert('🚰 Irrigation System\n\nOptimal irrigation schedule calculated based on:\n• Current soil moisture: 78%\n• Weather forecast: Light rain expected\n• Crop water requirements: Moderate\n\nRecommendation: Delay irrigation for 2 days');
+}
+
+function showFertilizationDialog() {
+    alert('🌱 Fertilization Planner\n\nNutrient analysis shows:\n• Nitrogen: 85% (Good)\n• Phosphorus: 72% (Moderate)\n• Potassium: 91% (Excellent)\n\nRecommendation: Apply phosphorus-rich fertilizer in 1 week');
+}
+
+function showHarvestDialog() {
+    alert('🌾 Harvest Optimizer\n\nCrop maturity analysis:\n• Growth progress: 85%\n• Estimated harvest date: 15 days\n• Expected yield: 4.2 t/ha\n• Quality grade: Premium\n\nOptimal harvest window: March 15-20');
+}
+
+// Sustainability Gauge
+let sustainabilityScore = 92;
+let sustainabilityGaugeCtx;
+
+function initializeSustainabilityGauge() {
+    const canvas = document.getElementById('sustainabilityGauge');
+    if (!canvas) return;
+    sustainabilityGaugeCtx = canvas.getContext('2d');
+    drawSustainabilityGauge(sustainabilityScore);
+    // Hook up interactive buttons
+    document.querySelectorAll('[data-action][data-delta]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const delta = parseInt(btn.getAttribute('data-delta')) || 0;
+            adjustSustainabilityScore(delta);
+        });
+    });
+}
+
+function adjustSustainabilityScore(delta) {
+    sustainabilityScore = Math.max(0, Math.min(100, sustainabilityScore + delta));
+    drawSustainabilityGauge(sustainabilityScore, true);
+    const textEl = document.getElementById('sustainabilityScoreText');
+    if (textEl) textEl.textContent = sustainabilityScore.toString();
+}
+
+function drawSustainabilityGauge(score, animate = false) {
+    if (!sustainabilityGaugeCtx) return;
+    const ctx = sustainabilityGaugeCtx;
+    const { width, height } = ctx.canvas;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = Math.min(width, height) / 2 - 8;
+    const startAngle = Math.PI * 0.75; // 135deg
+    const endAngle = Math.PI * 2.25; // 405deg
+    const targetAngle = startAngle + (endAngle - startAngle) * (score / 100);
+
+    let current = animate ? 0 : score;
+    const steps = animate ? 30 : 1;
+    const increment = (score - current) / steps;
+
+    function renderFrame() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Track background
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.lineWidth = 12;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Gradient arc
+        const gradient = ctx.createLinearGradient(0, 0, width, 0);
+        gradient.addColorStop(0, '#10b981');
+        gradient.addColorStop(0.6, '#34d399');
+        gradient.addColorStop(1, '#6ee7b7');
+
+        const currentAngle = startAngle + (endAngle - startAngle) * (current / 100);
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, startAngle, currentAngle);
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 12;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Tick marks
+        for (let i = 0; i <= 10; i++) {
+            const t = i / 10;
+            const angle = startAngle + (endAngle - startAngle) * t;
+            const inner = radius - 14;
+            const outer = radius + 2;
+            ctx.beginPath();
+            ctx.moveTo(centerX + inner * Math.cos(angle), centerY + inner * Math.sin(angle));
+            ctx.lineTo(centerX + outer * Math.cos(angle), centerY + outer * Math.sin(angle));
+            ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+            ctx.lineWidth = i % 5 === 0 ? 2 : 1;
+            ctx.stroke();
+        }
+
+        if (animate && Math.abs(current - score) > 0.01) {
+            current += increment;
+            requestAnimationFrame(renderFrame);
+        }
+    }
+
+    renderFrame();
+}
+
+// Horizontal scroll video gallery logic
+function initializeHorizontalGallery() {
+    const outer = document.querySelector('#scrollGallery .hscroll-outer');
+    const track = document.querySelector('#scrollGallery .hscroll-track');
+    if (!outer || !track) return;
+
+    // Calculate total scroll width
+    const cards = Array.from(track.children);
+    const totalWidth = cards.reduce((sum, el) => sum + el.getBoundingClientRect().width, 0) + (cards.length - 1) * 24 + 48;
+    const viewport = outer.getBoundingClientRect().width;
+    const maxTranslate = Math.max(0, totalWidth - viewport);
+
+    const sticky = document.querySelector('#scrollGallery .hscroll-sticky');
+    const start = outer.offsetTop;
+    const duration = outer.offsetHeight - sticky.offsetHeight;
+
+    function onScroll() {
+        const scrollY = window.scrollY || window.pageYOffset;
+        const progress = Math.min(1, Math.max(0, (scrollY - start) / duration));
+        const translateX = -maxTranslate * progress;
+        track.style.transform = `translate3d(${translateX}px, 0, 0)`;
+
+        // Auto-play/pause videos based on visibility
+        cards.forEach(card => {
+            const video = card.querySelector('video');
+            if (!video) return;
+            const rect = card.getBoundingClientRect();
+            const visible = rect.right > 80 && rect.left < (window.innerWidth - 80);
+            if (visible) {
+                video.play().catch(() => {});
+            } else {
+                video.pause();
+            }
+        });
+    }
+
+    // Hover autoplay
+    track.querySelectorAll('video').forEach(v => {
+        v.addEventListener('mouseenter', () => v.play().catch(() => {}));
+        v.addEventListener('mouseleave', () => v.pause());
+    });
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', () => setTimeout(initializeHorizontalGallery, 50), { once: true });
+}
+
+// Hide header on scroll down, show on scroll up
+(function hideHeaderOnScroll(){
+    const header = document.getElementById('mainHeader');
+    if (!header) return;
+    let lastY = window.scrollY || 0;
+    function onScroll(){
+        const y = window.scrollY || 0;
+        const goingDown = y > lastY && y > 40; // ignore tiny movements
+        header.style.transition = 'transform 0.35s ease, opacity 0.25s ease';
+        if (goingDown) {
+            header.style.transform = 'translateY(-100%)';
+            header.style.opacity = '0';
+        } else {
+            header.style.transform = 'translateY(0)';
+            header.style.opacity = '1';
+        }
+        lastY = y;
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+})();
+    </script>
+</body>
+</html>
