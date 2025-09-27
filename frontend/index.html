@@ -115,6 +115,210 @@
         .hvideo-el { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.05) contrast(1.05); transition: transform 0.5s ease, filter 0.5s ease; }
         .hvideo:hover .hvideo-el, .hvideo:focus-within .hvideo-el { transform: scale(1.04); filter: saturate(1.15) contrast(1.1); }
         .hvideo figcaption { position: absolute; left: 16px; bottom: 14px; font-family: 'Orbitron', 'Inter', sans-serif; font-weight: 800; letter-spacing: .5px; color: #fff; text-shadow: 0 6px 18px rgba(0,0,0,.45); background: rgba(0,0,0,.35); padding: 6px 10px; border-radius: 9999px; border: 1px solid rgba(255,255,255,.15); }
+        
+        /* Sleek Dark Fact Carousel Styles */
+        .fact-carousel-container {
+            position: relative;
+            height: 240px;
+            overflow: hidden;
+            background: linear-gradient(135deg, 
+                rgba(0, 0, 0, 0.8) 0%, 
+                rgba(20, 20, 20, 0.9) 50%, 
+                rgba(0, 0, 0, 0.8) 100%);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-clip: padding-box;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+        }
+        
+        .fact-carousel-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, 
+                rgba(255, 255, 255, 0.03) 0%, 
+                transparent 50%, 
+                rgba(255, 255, 255, 0.02) 100%);
+            border-radius: 16px;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .fact-carousel {
+            position: relative;
+            height: 100%;
+            overflow: hidden;
+            z-index: 2;
+        }
+        
+        .fact-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            opacity: 0;
+            transform: translateX(100%) scale(0.95);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 32px 24px;
+            z-index: 1;
+        }
+        
+        .fact-slide.active {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+            animation: slideInElegant 0.8s ease-out;
+        }
+        
+        .fact-slide.prev {
+            transform: translateX(-100%) scale(0.95);
+        }
+        
+        @keyframes slideInElegant {
+            0% { 
+                opacity: 0;
+                transform: translateX(30px) scale(0.95);
+                filter: blur(2px);
+            }
+            100% { 
+                opacity: 1;
+                transform: translateX(0) scale(1);
+                filter: blur(0px);
+            }
+        }
+        
+        .fact-icon {
+            font-size: 3.5rem;
+            margin-bottom: 24px;
+            animation: iconFloat 3s ease-in-out infinite;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+            position: relative;
+            z-index: 2;
+        }
+        
+        .fact-icon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(255, 255, 255, 0.05) 50%, 
+                transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: iconGlow 4s ease-in-out infinite;
+            z-index: -1;
+        }
+        
+        @keyframes iconFloat {
+            0%, 100% { 
+                transform: translateY(0px) scale(1);
+                filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+            }
+            50% { 
+                transform: translateY(-8px) scale(1.05);
+                filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.4));
+            }
+        }
+        
+        @keyframes iconGlow {
+            0%, 100% { 
+                opacity: 0.3;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% { 
+                opacity: 0.6;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+        
+        .fact-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #e5e7eb;
+            max-width: 100%;
+            font-weight: 400;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .carousel-indicators {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px 20px;
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .indicator.active {
+            background: #ffffff;
+            transform: scale(1.4);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+        }
+        
+        .indicator:hover {
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(1.2);
+        }
+        
+        /* Subtle dark particles */
+        .fact-carousel-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.1), transparent),
+                radial-gradient(1px 1px at 40px 70px, rgba(255, 255, 255, 0.05), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.08), transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.06), transparent);
+            background-repeat: repeat;
+            background-size: 200px 120px;
+            animation: particleFloat 25s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        @keyframes particleFloat {
+            0% { transform: translateY(0px) translateX(0px); }
+            100% { transform: translateY(-120px) translateX(30px); }
+        }
     </style>
 </head>
 <body class="gradient-bg min-h-screen text-white font-sans">
@@ -315,21 +519,68 @@
 				</div>
 			</div>
 
-            <div class="bg-gradient-to-br from-forest/80 to-deep-green/80 backdrop-blur-lg rounded-2xl p-6 border border-emerald/20">
-                <h3 class="text-xl font-semibold text-emerald mb-4">⚡ Quick Actions</h3>
-                <div class="grid grid-cols-3 gap-4">
-                    <button class="bg-emerald/20 hover:bg-emerald/30 p-4 rounded-lg transition-all duration-300 hover:scale-105 text-center">
-                        <div class="text-2xl mb-2">🚰</div>
-                        <div class="text-sm">Irrigate</div>
-                    </button>
-                    <button class="bg-sage/20 hover:bg-sage/30 p-4 rounded-lg transition-all duration-300 hover:scale-105 text-center">
-                        <div class="text-2xl mb-2">🌱</div>
-                        <div class="text-sm">Fertilize</div>
-                    </button>
-                    <button class="bg-mint/20 hover:bg-mint/30 p-4 rounded-lg transition-all duration-300 hover:scale-105 text-center">
-                        <div class="text-2xl mb-2">🌾</div>
-                        <div class="text-sm">Harvest</div>
-                    </button>
+            <div class="bg-gradient-to-br from-forest/80 to-deep-green/80 backdrop-blur-lg rounded-2xl p-6 border border-emerald/20 relative overflow-hidden">
+                <!-- Subtle background elements -->
+                <div class="absolute top-0 left-0 w-full h-full opacity-5">
+                    <div class="absolute top-4 left-4 w-1 h-1 bg-white rounded-full animate-ping"></div>
+                    <div class="absolute top-8 right-8 w-0.5 h-0.5 bg-white rounded-full animate-pulse"></div>
+                    <div class="absolute bottom-12 left-12 w-1 h-1 bg-white rounded-full animate-bounce"></div>
+                    <div class="absolute bottom-6 right-6 w-0.5 h-0.5 bg-white rounded-full animate-ping"></div>
+                </div>
+                
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-white">
+                            🛰️ Did you know?
+                        </h3>
+                        <div class="flex items-center space-x-1">
+                            <div class="w-1 h-1 bg-white rounded-full animate-pulse"></div>
+                            <div class="w-1 h-1 bg-white rounded-full animate-pulse" style="animation-delay: 0.5s;"></div>
+                            <div class="w-1 h-1 bg-white rounded-full animate-pulse" style="animation-delay: 1s;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="fact-carousel-container">
+                        <div class="fact-carousel" id="factCarousel">
+                            <div class="fact-slide active">
+                                <div class="fact-icon">🌱</div>
+                                <div class="fact-text">NASA satellites track soil moisture from space — this helps farmers know when and how much to irrigate, reducing water waste by up to 30%.</div>
+                            </div>
+                            <div class="fact-slide">
+                                <div class="fact-icon">🌍</div>
+                                <div class="fact-text">Carbon monitoring from space helps measure emissions from farming and land use — vital for understanding agriculture's role in climate change.</div>
+                            </div>
+                            <div class="fact-slide">
+                                <div class="fact-icon">🌾</div>
+                                <div class="fact-text">Normalized Difference Vegetation Index (NDVI) from NASA satellite data can show crop health before it's visible to the human eye.</div>
+                            </div>
+                            <div class="fact-slide">
+                                <div class="fact-icon">☀️</div>
+                                <div class="fact-text">Temperature anomalies mapped by satellites help predict crop stress during heatwaves, giving farmers time to adapt.</div>
+                            </div>
+                            <div class="fact-slide">
+                                <div class="fact-icon">💧</div>
+                                <div class="fact-text">Evapotranspiration data from satellites estimate how much water crops are losing to the atmosphere, guiding efficient irrigation.</div>
+                            </div>
+                            <div class="fact-slide">
+                                <div class="fact-icon">🛰️</div>
+                                <div class="fact-text">SMAP (Soil Moisture Active Passive) satellite measures soil moisture globally, helping predict droughts and optimize planting schedules.</div>
+                            </div>
+                            <div class="fact-slide">
+                                <div class="fact-icon">🌳</div>
+                                <div class="fact-text">Sustainable farming practices like cover cropping and reduced tillage can increase soil carbon storage, which satellites can monitor over time.</div>
+                            </div>
+                        </div>
+                        <div class="carousel-indicators">
+                            <span class="indicator active" data-slide="0"></span>
+                            <span class="indicator" data-slide="1"></span>
+                            <span class="indicator" data-slide="2"></span>
+                            <span class="indicator" data-slide="3"></span>
+                            <span class="indicator" data-slide="4"></span>
+                            <span class="indicator" data-slide="5"></span>
+                            <span class="indicator" data-slide="6"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -341,7 +592,7 @@
 					<div class="hscroll-track">
 						<!-- Video Cards: replace src with your own files in assets/videos -->
 						<figure class="hvideo">
-							<video class="hvideo-el" src="assets/videos/background.mp4" muted loop playsinline preload="metadata"></video>
+							<video class="hvideo-el" src="assets/videos/backgroundd.mp4" muted loop playsinline preload="metadata"></video>
 							<figcaption>Earth Systems</figcaption>
 						</figure>
 						<figure class="hvideo">
@@ -421,6 +672,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupLocationSelector();
     initializeSustainabilityGauge();
     initializeHorizontalGallery();
+    initializeFactCarousel();
     const y = document.getElementById('yearSpan'); if (y) y.textContent = new Date().getFullYear();
 });
 
@@ -962,6 +1214,136 @@ function initializeHorizontalGallery() {
     }
     window.addEventListener('scroll', onScroll, { passive: true });
 })();
+
+// Fact Carousel functionality
+let currentFactIndex = 0;
+let factCarouselInterval;
+const factSlides = document.querySelectorAll('.fact-slide');
+const indicators = document.querySelectorAll('.indicator');
+
+function initializeFactCarousel() {
+    if (!document.getElementById('factCarousel')) return;
+    
+    // Set up indicator click handlers
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+            goToFact(index);
+        });
+    });
+    
+    // Start auto-rotation
+    startFactRotation();
+    
+    // Pause on hover
+    const carouselContainer = document.querySelector('.fact-carousel-container');
+    if (carouselContainer) {
+        carouselContainer.addEventListener('mouseenter', pauseFactRotation);
+        carouselContainer.addEventListener('mouseleave', startFactRotation);
+    }
+}
+
+function startFactRotation() {
+    if (factCarouselInterval) clearInterval(factCarouselInterval);
+    factCarouselInterval = setInterval(() => {
+        nextFact();
+    }, 6000); // Change every 6 seconds
+}
+
+function pauseFactRotation() {
+    if (factCarouselInterval) {
+        clearInterval(factCarouselInterval);
+        factCarouselInterval = null;
+    }
+}
+
+function nextFact() {
+    const nextIndex = (currentFactIndex + 1) % factSlides.length;
+    goToFact(nextIndex);
+}
+
+function goToFact(index) {
+    if (index === currentFactIndex) return;
+    
+    // Add special effect for manual navigation
+    const container = document.querySelector('.fact-carousel-container');
+    if (container) {
+        container.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+            container.style.transform = 'scale(1)';
+        }, 150);
+    }
+    
+    // Remove active classes
+    factSlides[currentFactIndex].classList.remove('active');
+    indicators[currentFactIndex].classList.remove('active');
+    
+    // Add prev class to current slide for smooth transition
+    factSlides[currentFactIndex].classList.add('prev');
+    
+    // Update current index
+    currentFactIndex = index;
+    
+    // Add active classes with enhanced animation
+    factSlides[currentFactIndex].classList.add('active');
+    indicators[currentFactIndex].classList.add('active');
+    
+    // Add sparkle effect
+    createSparkleEffect();
+    
+    // Remove prev class after transition
+    setTimeout(() => {
+        factSlides.forEach(slide => slide.classList.remove('prev'));
+    }, 1200);
+}
+
+function createSparkleEffect() {
+    const container = document.querySelector('.fact-carousel-container');
+    if (!container) return;
+    
+    for (let i = 0; i < 4; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.style.cssText = `
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 20;
+            left: ${Math.random() * 100}%;
+            top: ${Math.random() * 100}%;
+            animation: sparkleEffect 1.2s ease-out forwards;
+        `;
+        
+        container.appendChild(sparkle);
+        
+        setTimeout(() => {
+            if (sparkle.parentNode) {
+                sparkle.parentNode.removeChild(sparkle);
+            }
+        }, 1200);
+    }
+}
+
+// Add sparkle animation CSS
+const sparkleStyle = document.createElement('style');
+sparkleStyle.textContent = `
+    @keyframes sparkleEffect {
+        0% {
+            opacity: 0;
+            transform: scale(0);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+        100% {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+    }
+`;
+document.head.appendChild(sparkleStyle);
     </script>
 </body>
 </html>
