@@ -87,7 +87,7 @@
         /* Sleek Dark Fact Carousel Styles */
         .fact-carousel-container {
             position: relative;
-            height: 240px;
+            height: 320px;
             overflow: hidden;
             background: linear-gradient(135deg, 
                 rgba(0, 0, 0, 0.8) 0%, 
@@ -140,7 +140,7 @@
             opacity: 0;
             transform: translateX(100%) scale(0.95);
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 32px 24px;
+            padding: 32px 24px 80px 24px;
             z-index: 1;
         }
         
@@ -148,6 +148,7 @@
             opacity: 1;
             transform: translateX(0) scale(1);
             animation: slideInElegant 0.8s ease-out;
+
         }
         
         .fact-slide.prev {
@@ -287,3 +288,186 @@
             0% { transform: translateY(0px) translateX(0px); }
             100% { transform: translateY(-120px) translateX(30px); }
         }
+
+        /* Farmer's Voices Carousel Styles */
+.farmers-carousel-container {
+    position: relative;
+    height: 320px;
+    overflow: hidden;
+    background: linear-gradient(135deg, 
+        rgba(0, 0, 0, 0.6) 0%, 
+        rgba(20, 20, 20, 0.8) 50%, 
+        rgba(0, 0, 0, 0.6) 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+}
+
+.farmers-carousel {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    z-index: 2;
+}
+
+.farmer-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    opacity: 0;
+    transform: translateX(100%) scale(0.95);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 32px 24px 80px 24px;
+    z-index: 1;
+}
+
+.farmer-card.active {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    animation: farmerSlideIn 0.8s ease-out;
+}
+
+.farmer-card.prev {
+    transform: translateX(-100%) scale(0.95);
+}
+
+@keyframes farmerSlideIn {
+    0% { 
+        opacity: 0;
+        transform: translateX(30px) scale(0.95);
+        filter: blur(2px);
+    }
+    100% { 
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        filter: blur(0px);
+    }
+}
+
+.farmer-icon {
+    font-size: 2.2rem;
+    margin-bottom: 16px;
+    animation: farmerIconFloat 3s ease-in-out infinite;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+    position: relative;
+    z-index: 2;
+}
+
+.farmer-icon::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle, 
+        rgba(16, 185, 129, 0.2) 0%, 
+        rgba(16, 185, 129, 0.1) 50%, 
+        transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: farmerIconGlow 4s ease-in-out infinite;
+    z-index: -1;
+}
+
+@keyframes farmerIconFloat {
+    0%, 100% { 
+        transform: translateY(0px) scale(1);
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+    }
+    50% { 
+        transform: translateY(-4px) scale(1.02);
+        filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.4));
+    }
+}
+
+@keyframes farmerIconGlow {
+    0%, 100% { 
+        opacity: 0.3;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% { 
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+.farmer-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 4px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    position: relative;
+    z-index: 2;
+}
+
+.farmer-location {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #10b981;
+    margin-bottom: 16px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    position: relative;
+    z-index: 2;
+}
+
+.farmer-story {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #e5e7eb;
+    max-width: 100%;
+    font-weight: 400;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+    position: relative;
+    z-index: 2;
+    padding-bottom: 60px;
+}
+
+.farmers-indicators {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 8px 16px;
+    border-radius: 25px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.farmer-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.farmer-indicator.active {
+    background: #10b981;
+    transform: scale(1.4);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+.farmer-indicator:hover {
+    background: rgba(16, 185, 129, 0.6);
+    transform: scale(1.2);
+}

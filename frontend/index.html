@@ -191,43 +191,76 @@
 
         <!-- Sustainability Score & Quick Actions -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-			<div class="bg-gradient-to-br from-forest/80 to-deep-green/80 backdrop-blur-lg rounded-2xl p-6 border border-emerald/20">
-				<h3 class="text-xl font-semibold text-emerald mb-4">🌍 Sustainability Score</h3>
-				<div class="flex items-center justify-center">
-					<div class="relative w-40 h-40">
-						<canvas id="sustainabilityGauge" width="160" height="160"></canvas>
-						<div class="absolute inset-0 flex items-center justify-center">
-							<div id="sustainabilityScoreText" class="text-4xl font-extrabold text-emerald">92</div>
+			<div class="bg-gradient-to-br from-forest/80 to-deep-green/80 backdrop-blur-lg rounded-2xl p-6 border border-emerald/20 relative overflow-hidden">
+				<!-- Farmer's Voices Section -->
+				<div class="relative z-10">
+					<div class="flex items-center justify-between mb-6">
+						<h3 class="orbitron text-2xl font-extrabold text-white tracking-wide">
+							🚀 Farmer's Voices
+						</h3>
+						<div class="flex items-center space-x-1">
+							<div class="w-1 h-1 bg-emerald rounded-full animate-pulse"></div>
+							<div class="w-1 h-1 bg-mint rounded-full animate-pulse" style="animation-delay: 0.5s;"></div>
+							<div class="w-1 h-1 bg-sage rounded-full animate-pulse" style="animation-delay: 1s;"></div>
+						</div>
+					</div>
+					
+					<div class="farmers-carousel-container">
+						<div class="farmers-carousel" id="farmersCarousel">
+							<div class="farmer-card active">
+								<div class="farmer-icon">🌾</div>
+								<div class="farmer-name">Amos Kazungu</div>
+								<div class="farmer-location">Kenya</div>
+								<div class="farmer-story">Received early warning via SMS that drought was coming; he prepared accordingly, switched crops, and protected his farm. His proactive approach saved his entire harvest season.</div>
+							</div>
+							<div class="farmer-card">
+								<div class="farmer-icon">🌍</div>
+								<div class="farmer-name">Jane Gathoni</div>
+								<div class="farmer-location">Kenya</div>
+								<div class="farmer-story">As part of a micro-insurance drought program, she got support after crop losses and used weather info to plan better farming strategies for future seasons.</div>
+							</div>
+							<div class="farmer-card">
+								<div class="farmer-icon">🔔</div>
+								<div class="farmer-name">Võ Tòng Xuân</div>
+								<div class="farmer-location">Vietnam</div>
+								<div class="farmer-story">Known as "Dr. Rice", he taught farmers improved rice cultivation methods and helped them combat pests, boosting yields significantly across the region.</div>
+							</div>
+							<div class="farmer-card">
+								<div class="farmer-icon">🌾</div>
+								<div class="farmer-name">Bhaskar Hiraji Save</div>
+								<div class="farmer-location">India</div>
+								<div class="farmer-story">Called the "Gandhi of natural farming", he promoted low-input methods, reducing chemicals and making farms sustainable for future generations.</div>
+							</div>
+							<div class="farmer-card">
+								<div class="farmer-icon">🌍</div>
+								<div class="farmer-name">Maria Gonzalez</div>
+								<div class="farmer-location">California, USA</div>
+								<div class="farmer-story">When wildfires threatened her vineyard, satellite alerts helped her delay harvest, saving her grapes from smoke damage and preserving wine quality.</div>
+							</div>
+							<div class="farmer-card">
+								<div class="farmer-icon">🔔</div>
+								<div class="farmer-name">Rahim Uddin</div>
+								<div class="farmer-location">Bangladesh</div>
+								<div class="farmer-story">Using NASA rainfall and river data, he evacuated livestock and stored seeds before floods, saving his farm from destruction and ensuring food security.</div>
+							</div>
+						</div>
+						<div class="farmers-indicators">
+							<span class="farmer-indicator active" data-farmer="0"></span>
+							<span class="farmer-indicator" data-farmer="1"></span>
+							<span class="farmer-indicator" data-farmer="2"></span>
+							<span class="farmer-indicator" data-farmer="3"></span>
+							<span class="farmer-indicator" data-farmer="4"></span>
+							<span class="farmer-indicator" data-farmer="5"></span>
 						</div>
 					</div>
 				</div>
-				<div class="mt-4 grid grid-cols-3 gap-2">
-					<div class="bg-emerald/15 rounded-lg px-3 py-2 text-center">
-						<div class="text-xs text-gray-300">Water Use</div>
-						<div class="text-sm font-semibold text-mint">Efficient</div>
-					</div>
-					<div class="bg-sage/15 rounded-lg px-3 py-2 text-center">
-						<div class="text-xs text-gray-300">Carbon</div>
-						<div class="text-sm font-semibold text-sage">Low</div>
-					</div>
-					<div class="bg-mint/15 rounded-lg px-3 py-2 text-center">
-						<div class="text-xs text-gray-300">Soil Health</div>
-						<div class="text-sm font-semibold text-mint">Strong</div>
-					</div>
-				</div>
-				<div class="mt-4 grid grid-cols-3 gap-3">
-					<button class="bg-emerald/20 hover:bg-emerald/30 rounded-lg px-2 py-2 text-center transition-all duration-300 hover:scale-105 ring-1 ring-emerald/30 focus:outline-none focus:ring-2 focus:ring-emerald/40" data-action="offset" data-delta="5">
-						<div class="text-xl mb-1">🌳</div>
-						<div class="text-xs">Offset Carbon</div>
-					</button>
-					<button class="bg-sage/20 hover:bg-sage/30 rounded-lg px-2 py-2 text-center transition-all duration-300 hover:scale-105 ring-1 ring-sage/30 focus:outline-none focus:ring-2 focus:ring-sage/40" data-action="irrigation" data-delta="3">
-						<div class="text-xl mb-1">💧</div>
-						<div class="text-xs">Optimize Irrigation</div>
-					</button>
-					<button class="bg-mint/20 hover:bg-mint/30 rounded-lg px-2 py-2 text-center transition-all duration-300 hover:scale-105 ring-1 ring-mint/30 focus:outline-none focus:ring-2 focus:ring-mint/40" data-action="waste" data-delta="2">
-						<div class="text-xl mb-1">♻️</div>
-						<div class="text-xs">Reduce Waste</div>
-					</button>
+				
+				<!-- Subtle background elements -->
+				<div class="absolute top-0 left-0 w-full h-full opacity-5">
+					<div class="absolute top-4 left-4 w-1 h-1 bg-white rounded-full animate-ping"></div>
+					<div class="absolute top-8 right-8 w-0.5 h-0.5 bg-white rounded-full animate-pulse"></div>
+					<div class="absolute bottom-12 left-12 w-1 h-1 bg-white rounded-full animate-bounce"></div>
+					<div class="absolute bottom-6 right-6 w-0.5 h-0.5 bg-white rounded-full animate-ping"></div>
 				</div>
 			</div>
 

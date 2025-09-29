@@ -659,7 +659,7 @@ function startFactRotation() {
     if (factCarouselInterval) clearInterval(factCarouselInterval);
     factCarouselInterval = setInterval(() => {
         nextFact();
-    }, 6000); // Change every 6 seconds
+    }, 4000); // Change every 4 seconds
 }
 
 function pauseFactRotation() {
@@ -757,3 +757,100 @@ sparkleStyle.textContent = `
     }
 `;
 document.head.appendChild(sparkleStyle);
+
+// Farmer's Voices Carousel Functionality
+class FarmersCarousel {
+    constructor() {
+        this.carousel = document.getElementById('farmersCarousel');
+        this.indicators = document.querySelectorAll('.farmer-indicator');
+        this.cards = document.querySelectorAll('.farmer-card');
+        this.currentIndex = 0;
+        this.autoSlideInterval = null;
+        
+        console.log('FarmersCarousel found:', this.carousel ? 'Yes' : 'No');
+        console.log('FarmersCarousel indicators:', this.indicators.length);
+        console.log('FarmersCarousel cards:', this.cards.length);
+        
+        if (this.carousel && this.indicators.length > 0) {
+            this.init();
+        }
+    }
+    
+    init() {
+        this.bindEvents();
+        this.startAutoSlide();
+    }
+    
+    bindEvents() {
+        this.indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                this.goToSlide(index);
+                this.resetAutoSlide();
+            });
+        });
+        
+        // Pause auto-slide on hover
+        if (this.carousel) {
+            this.carousel.addEventListener('mouseenter', () => {
+                this.stopAutoSlide();
+            });
+            
+            this.carousel.addEventListener('mouseleave', () => {
+                this.startAutoSlide();
+            });
+        }
+    }
+    
+    goToSlide(index) {
+        if (index === this.currentIndex) return;
+        
+        // Remove active classes
+        this.cards.forEach(card => card.classList.remove('active', 'prev'));
+        this.indicators.forEach(indicator => indicator.classList.remove('active'));
+        
+        // Add prev class to current card
+        this.cards[this.currentIndex].classList.add('prev');
+        
+        // Set new active card and indicator
+        this.currentIndex = index;
+        this.cards[this.currentIndex].classList.add('active');
+        this.indicators[this.currentIndex].classList.add('active');
+        
+        // Remove prev class after animation
+        setTimeout(() => {
+            this.cards.forEach(card => card.classList.remove('prev'));
+        }, 800);
+    }
+    
+    nextSlide() {
+        const nextIndex = (this.currentIndex + 1) % this.cards.length;
+        this.goToSlide(nextIndex);
+    }
+    
+    startAutoSlide() {
+        this.stopAutoSlide();
+        console.log('Starting FarmersCarousel auto slide with 4 second interval');
+        this.autoSlideInterval = setInterval(() => {
+            this.nextSlide();
+        }, 4000); // Change slide every 4 seconds
+    }
+    
+    stopAutoSlide() {
+        if (this.autoSlideInterval) {
+            clearInterval(this.autoSlideInterval);
+            this.autoSlideInterval = null;
+        }
+    }
+    
+    resetAutoSlide() {
+        this.stopAutoSlide();
+        this.startAutoSlide();
+    }
+}
+
+// Initialize both carousels when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Initializing carousels...');
+    new FarmersCarousel();
+    initializeFactCarousel();
+});
