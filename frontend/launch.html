@@ -530,7 +530,8 @@
   </head>
   <body>
     <div class="top-nav">
-      <button class="back-btn" onclick="goBack()">← Back</button>
+      <button class="back-btn" onclick="window.location.href='stimulator.html'">← Back</button>
+
       <div class="challenge-title">Optimizing Irrigation in Punjab </div>
       <div class="points-counter">
         🌳 <span id="totalPoints">600</span> points
@@ -1306,12 +1307,12 @@
       }
 
       function returnToDashboard() {
-        window.location.href = "simulator.html";
+        window.location.href = "stimulator.html";
       }
 
       function goBack() {
         if (confirm("Are you sure you want to leave? Progress will be lost.")) {
-          window.location.href = "simulator.html";
+          window.location.href = "stimulator.html";
         }
       }
 
