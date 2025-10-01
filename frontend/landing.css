@@ -205,7 +205,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, rgba(14,163,113,0.95), rgba(4,120,87,0.9));
+            background: linear-gradient(135deg, rgba(18, 110, 41, 0.95), rgba(4,120,87,0.9));
             border: 1px solid rgba(4,120,87,0.5);
             padding: 18px 40px;
             font-size: 1.3rem;
@@ -278,9 +278,9 @@
         }
 
         .btn-secondary {
-            background: rgba(6, 19, 15, 0.6);
+            background: rgba(16, 121, 67, 0.864);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(4, 120, 87, 0.45);
+            border: 1px solid rgba(24, 100, 40, 0.841);
             padding: 12px 25px;
             color: #ffffff;
             font-family: 'Orbitron', 'Inter', system-ui, sans-serif;
@@ -318,7 +318,7 @@
         }
 
         /* Volume Control */
-        .volume-control {
+        /*.volume-control {
             position: fixed;
             top: 30px;
             right: 30px;
@@ -330,7 +330,7 @@
             padding: 10px 20px;
             border-radius: 25px;
             backdrop-filter: blur(10px);
-        }
+        }*/
 
         .volume-slider {
             width: 100px;
