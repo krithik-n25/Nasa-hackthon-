@@ -1,0 +1,456 @@
+ @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.6); }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000000;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 34px;
+            font-weight: 900;
+            font-family: 'Orbitron', sans-serif;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .tutorial-btn {
+            background: #0a2420;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            color: rgb(16, 185, 129);
+            padding: 23px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .tutorial-btn:hover {
+            background: rgb(16, 185, 129);
+            color: #000000;
+        }
+
+        .points-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #0a2420;
+            padding: 10px 24px;
+            border-radius: 12px;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+        }
+
+        .tree-icon {
+            font-size: 24px;
+        }
+
+        .points-text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .points-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: rgb(16, 185, 129);
+        }
+
+        .points-label {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* Search and Filter */
+        .search-filter {
+            max-width: 1400px;
+            margin: 0 auto 40px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 20px;
+            background: #0a2420;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            border-radius: 10px;
+            color: #e2e8f0;
+            font-size: 15px;
+        }
+
+        .search-input::placeholder {
+            color: #64748b;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 14px 24px;
+            background: #0a2420;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            border-radius: 10px;
+            color: rgb(16, 185, 129);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .filter-btn:hover {
+            background: rgb(16, 185, 129);
+            color: #000000;
+        }
+
+        .filter-btn.active {
+            background: rgb(16, 185, 129);
+            border-color: rgb(16, 185, 129);
+            color: #000000;
+        }
+
+        /* Challenge Grid */
+        .challenges-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+        }
+
+        .challenge-card {
+            background: #0a2420;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .challenge-card:hover {
+            border-color: rgb(16, 185, 129);
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.25);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .card-icon {
+            font-size: 32px;
+        }
+
+        .card-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .difficulty-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid;
+        }
+
+        .difficulty-badge.easy {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgb(16, 185, 129);
+            color: rgb(16, 185, 129);
+        }
+
+        .difficulty-badge.medium {
+            background: rgba(251, 146, 60, 0.1);
+            border-color: #fb923c;
+            color: #fb923c;
+        }
+
+        .difficulty-badge.hard {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .points-badge {
+            color: rgb(16, 185, 129);
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #f1f5f9;
+        }
+
+        .card-location {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .card-description {
+            color: #cbd5e1;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        .card-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .metric-label {
+            color: #94a3b8;
+        }
+
+        .metric-value {
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .nasa-datasets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .dataset-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .dataset-badge {
+            background: rgba(6, 182, 212, 0.15);
+            color: #06b6d4;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .card-goal {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .goal-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: rgb(16, 185, 129);
+            margin-bottom: 6px;
+        }
+
+        .goal-text {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.5;
+        }
+
+        .launch-btn {
+            width: 100%;
+            padding: 14px;
+            background: rgb(16, 185, 129);
+            color: #0a1628;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .launch-btn:hover {
+            background: rgb(5, 150, 105);
+            transform: scale(1.02);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: rgb(16, 185, 129);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #e2e8f0;
+        }
+
+        .modal-body {
+            color: #cbd5e1;
+            line-height: 1.8;
+        }
+
+        .modal-body h3 {
+            color: rgb(16, 185, 129);
+            margin: 20px 0 10px;
+        }
+
+        .modal-body ul {
+            margin-left: 20px;
+        }
+
+        .modal-body li {
+            margin: 8px 0;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: rgb(16, 185, 129);
+            color: #0a1628;
+            padding: 20px 24px;
+            border-radius: 12px;
+            font-weight: bold;
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.6);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 2000;
+            max-width: 320px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .no-results {
+            text-align: center;
+            color: #64748b;
+            padding: 60px;
+            font-size: 18px;
+        }
+        
+        /* Horizontal Video Elements */
+        .hvideo {
+            background: linear-gradient(135deg,
+                rgba(16,185,129,0.08),
+                rgba(110,231,183,0.05)
+            );
+            border: 1px solid rgba(16,185,129,0.25);
+            box-shadow: 0 25px 50px -12px rgba(16,185,129,0.25);
+        }
+
+        /* Card Hover Effects */
+        .card-hover:hover {
+            box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.25);
+        }

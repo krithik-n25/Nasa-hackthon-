@@ -5,9 +5,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any, Optional
-
+from .api import challenges, simulation
 # Import the logic functions from our modules
-from modules.data_logic import get_climate_info, get_soil_info, get_crop_info
+from farm_navigator_backend.modules.data_logic import get_climate_info, get_soil_info, get_crop_info
 
 # --- App Initialization ---
 app = FastAPI(
@@ -27,10 +27,11 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-
 # --- API Endpoints ---
+app.include_router(challenges.router, prefix="/api/challenges", tags=["Challenges"])
+app.include_router(simulation.router, prefix="/api/simulation", tags=["Simulation"])
 
-@app.get("/")
+@app.get("/",  tags=["Root"])
 def read_root():
     """ A simple root endpoint to check if the server is running. """
     return {"status": "ok", "message": "Welcome to the Farm Navigator API!"}
