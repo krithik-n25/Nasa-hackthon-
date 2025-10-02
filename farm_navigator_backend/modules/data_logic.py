@@ -3,14 +3,17 @@
 # logic for processing that data into the format the frontend needs.
 import requests
 import random
+import os
+from dotenv import load_dotenv
 from datetime import date, timedelta
 from .simulation import predict_yield # Import our simulation logic
 
+
+# Load environment variables from .env file
+load_dotenv()
+API_KEY = os.getenv("OPENWEATHER_API_KEY")
+
 # --- Mock NASA Data Fetching & Processing ---
-
-# Add your OpenWeatherMap API key here
-OPENWEATHER_API_KEY = "21ef64fd4b0e62f91fe40077fac922fb"  # Your working API key
-
 def _get_mock_climate_info(lat: float, lon: float):
     """Generates random but plausible climate data as a fallback."""
     print(f"Coordinates ({lat}, {lon}) are valid, but falling back to mock climate data.")
@@ -44,7 +47,7 @@ def get_climate_info(lat: float, lon: float):
     params = {
         "lat": lat,
         "lon": lon,
-        "appid": OPENWEATHER_API_KEY,
+        "appid": API_KEY,
         "units": "metric"  # Celsius
     }
     
