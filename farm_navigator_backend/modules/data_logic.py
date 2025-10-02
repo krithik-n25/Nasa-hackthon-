@@ -12,7 +12,7 @@ from .simulation import predict_yield # Import our simulation logic
 # Load environment variables from .env file
 load_dotenv()
 API_KEY = os.getenv("OPENWEATHER_API_KEY")
-
+print(f"🔑 API Key loaded: {API_KEY[:10] if API_KEY else 'NONE'}...")
 # --- Mock NASA Data Fetching & Processing ---
 def _get_mock_climate_info(lat: float, lon: float):
     """Generates random but plausible climate data as a fallback."""
