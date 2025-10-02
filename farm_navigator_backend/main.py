@@ -5,10 +5,12 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict, Any, Optional
+from fastapi.staticfiles import StaticFiles
+import os
 from .api import challenges, simulation
 # Import the logic functions from our modules
 from farm_navigator_backend.modules.data_logic import get_climate_info, get_soil_info, get_crop_info
-
+from farm_navigator_backend.routers import datasets, graphs, download
 # --- App Initialization ---
 app = FastAPI(
     title="Farm Navigator API",
@@ -30,6 +32,16 @@ app.add_middleware(
 # --- API Endpoints ---
 app.include_router(challenges.router, prefix="/api/challenges", tags=["Challenges"])
 app.include_router(simulation.router, prefix="/api/simulation", tags=["Simulation"])
+#---new feature---
+# Mount static files (frontend)
+#---new feature---
+# Mount static files (frontend) using absolute path
+STATIC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../frontend/pages"))
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+# Include routers
+app.include_router(datasets.router, prefix="/datasets", tags=["Datasets"])
+app.include_router(graphs.router, prefix="/graphs", tags=["Graphs"])
+app.include_router(download.router, prefix="/download", tags=["Download"])
 
 @app.get("/",  tags=["Root"])
 def read_root():

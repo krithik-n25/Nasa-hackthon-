@@ -8,6 +8,9 @@ from .simulation import predict_yield # Import our simulation logic
 
 # --- Mock NASA Data Fetching & Processing ---
 
+# Add your OpenWeatherMap API key here
+OPENWEATHER_API_KEY = "21ef64fd4b0e62f91fe40077fac922fb"  # Your working API key
+
 def _get_mock_climate_info(lat: float, lon: float):
     """Generates random but plausible climate data as a fallback."""
     print(f"Coordinates ({lat}, {lon}) are valid, but falling back to mock climate data.")
@@ -32,61 +35,75 @@ def _get_mock_climate_info(lat: float, lon: float):
 
 def get_climate_info(lat: float, lon: float):
     """
-    Fetches real climate data from the NASA POWER API for the last 7 days.
+    Fetches REAL-TIME climate data from OpenWeatherMap API.
     Falls back to mocked data if the API call fails.
     """
-    end_date = date.today()
-    start_date = end_date - timedelta(days=7)
+    # OpenWeatherMap current weather endpoint
+    url = "https://api.openweathermap.org/data/2.5/weather"
     
-    start_str = start_date.strftime("%Y%m%d")
-    end_str = end_date.strftime("%Y%m%d")
-
-    url = (
-        f"https://power.larc.nasa.gov/api/temporal/daily/point?"
-        f"parameters=T2M,PRECTOT&community=AG&longitude={lon}&latitude={lat}&"
-        f"start={start_str}&end={end_str}&format=JSON"
-    )
-
+    params = {
+        "lat": lat,
+        "lon": lon,
+        "appid": OPENWEATHER_API_KEY,
+        "units": "metric"  # Celsius
+    }
+    
     try:
-        response = requests.get(url, timeout=15)
-        response.raise_for_status()  # Raise an exception for bad status codes
+        # Fetch current weather
+        response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
         
         data = response.json()
         
-        temp_data = data["properties"]["parameter"]["T2M"]
-        precip_data = data["properties"]["parameter"]["PRECTOT"]
+        # Extract data from OpenWeatherMap response
+        latest_temp = data["main"]["temp"]
+        humidity = data["main"]["humidity"]
         
-        # Get the latest data for the main display
-        latest_date_key = max(temp_data.keys())
-        latest_temp = temp_data.get(latest_date_key, 0)
-        latest_rainfall = precip_data.get(latest_date_key, 0)
-
-        # Handle NASA's fill value for missing data (-999)
-        if latest_temp <= -999: latest_temp = 0
-        if latest_rainfall <= -999: latest_rainfall = 0
-
-        # Create the history list for the chart
+        # OpenWeatherMap doesn't provide direct rainfall in current weather
+        # Use cloudiness and humidity to estimate drought conditions
+        cloudiness = data["clouds"]["all"]  # 0-100%
+        
+        # Check if there's rain data (only available during rain)
+        if "rain" in data and "1h" in data["rain"]:
+            rainfall = data["rain"]["1h"]  # mm in last hour
+        else:
+            rainfall = 0.0
+        
+        # Calculate drought index based on humidity and cloudiness
+        # Low humidity + low clouds = high drought risk
+        drought_factor = (100 - humidity) / 100 * (100 - cloudiness) / 100
+        drought_index = round(drought_factor, 2)
+        
+        # Generate mock history for the last 7 days
+        # (OpenWeatherMap free tier doesn't include historical data)
         history = []
-        for date_key, value in sorted(precip_data.items()):
-            iso_date = f"{date_key[:4]}-{date_key[4:6]}-{date_key[6:]}"
-            rainfall_val = value if value > -999 else 0
-            history.append({"day": iso_date, "rainfall": rainfall_val})
+        today = date.today()
+        for i in range(7):
+            day = today - timedelta(days=i)
+            # Vary rainfall based on current conditions
+            if rainfall > 0:
+                daily_rainfall = round(random.uniform(0.5, rainfall * 2), 1)
+            else:
+                # Dry conditions - low rainfall
+                daily_rainfall = round(random.uniform(0.0, 5.0), 1)
             
-        # Simple drought index (0 = wet, 1 = very dry) based on latest rainfall
-        # Using 25mm as a reference for "very wet"
-        drought_index = round(1 - (latest_rainfall / 25.0), 2) if latest_rainfall < 25 else 0.0
-
+            history.append({
+                "day": day.isoformat(),
+                "rainfall": daily_rainfall
+            })
+        
         return {
-            "temperature": latest_temp,
-            "rainfall": latest_rainfall,
-            "drought_index": max(0, drought_index),
-            "history": history
+            "temperature": round(latest_temp, 1),
+            "rainfall": round(rainfall, 1),
+            "drought_index": max(0, min(1, drought_index)),  # Clamp between 0-1
+            "history": list(reversed(history)),
+            "humidity": humidity,  # Extra data you might want
+            "cloudiness": cloudiness
         }
-
-    except (requests.exceptions.RequestException, KeyError) as e:
-        print(f"NASA POWER API call failed: {e}. Falling back to mock data.")
-        return _get_mock_climate_info(lat, lon)
     
+    except (requests.exceptions.RequestException, KeyError) as e:
+        print(f"OpenWeatherMap API call failed: {e}. Falling back to mock data.")
+        return _get_mock_climate_info(lat, lon)
 # --- Mock NASA Data Fetching & Processing ---
 
 def _get_mock_soil_info(lat: float, lon: float):
