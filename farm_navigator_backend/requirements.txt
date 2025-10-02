@@ -3,3 +3,4 @@ uvicorn[standard]
 requests
 pydantic
 httpx
+python-dotenv==1.0.0
